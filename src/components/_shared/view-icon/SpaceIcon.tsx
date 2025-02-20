@@ -117,7 +117,7 @@ function SpaceIcon({ value, char, bgColor, className: classNameProp }: {
   return <span
     className={className}
     style={{
-      backgroundColor: bgColor ? renderColor(bgColor) : 'rgb(163, 74, 253)',
+      backgroundColor: bgColor ? renderColor(bgColor) : '#0bd4a0',
     }}
   >{content}</span>;
 }

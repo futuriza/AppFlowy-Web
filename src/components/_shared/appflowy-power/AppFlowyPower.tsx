@@ -1,6 +1,6 @@
 import { Divider } from '@mui/material';
 import React from 'react';
-import { ReactComponent as AppFlowyLogo } from '@/assets/appflowy.svg';
+// import { ReactComponent as AppFlowyLogo } from '@/assets/appflowy.svg';
 
 function AppFlowyPower ({
   divider,
@@ -18,7 +18,7 @@ function AppFlowyPower ({
     >
       {divider && <Divider className={'w-full my-0'} />}
 
-      <div
+      {/* <div
         onClick={() => {
           window.open('https://appflowy.com', '_blank');
         }}
@@ -31,7 +31,7 @@ function AppFlowyPower ({
       >
         Powered by
         <AppFlowyLogo className={'w-[88px]'} />
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -96,13 +96,13 @@ const createServer = async (req: Request) => {
     let title, description;
 
     if (reqUrl.pathname === '/after-payment') {
-      title = 'Payment Success | AppFlowy';
-      description = 'Payment success on AppFlowy';
+      title = 'Payment Success | Futuriza Docs';
+      description = 'Payment success on Futuriza Docs';
     }
 
     if (reqUrl.pathname === '/login') {
-      title = 'Login | AppFlowy';
-      description = 'Login to AppFlowy';
+      title = 'Login | Futuriza Docs';
+      description = 'Login to Futuriza Docs';
     }
 
     if (title) $('title').text(title);
@@ -163,8 +163,8 @@ const createServer = async (req: Request) => {
     const htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = load(htmlData);
 
-    const description = 'Write, share, and publish docs quickly on AppFlowy.\nGet started for free.';
-    let title = 'AppFlowy';
+    const description = 'Write, share, and publish docs quickly on Futuriza Docs.\nGet started for free.';
+    let title = 'Futuriza Docs';
     const url = `https://${hostname}${reqUrl.pathname}`;
     let image = '/og-image.png';
     let favicon = '/appflowy.ico';
@@ -197,7 +197,7 @@ const createServer = async (req: Request) => {
           titleList.push('|');
         }
 
-        titleList.push('AppFlowy');
+        titleList.push('Futuriza Docs');
         title = titleList.join(' ');
 
         try {

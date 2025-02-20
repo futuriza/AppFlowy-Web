@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "Futuriza Docs",
   "defaultUsername": "Ben",
   "welcomeText": "@:appName'a Hoş Geldiniz",
   "welcomeTo": "Hoş Geldiniz",
@@ -2288,7 +2288,7 @@
     "continueWithGoogle": "Google ile Devam Et",
     "continueWithGithub": "GitHub ile Devam Et",
     "continueWithDiscord": "Discord ile Devam Et",
-    "signInAgreement": "Yukarıdaki \"Devam Et\" düğmesine tıklayarak,\nAppFlowy'nin",
+    "signInAgreement": "Yukarıdaki \"Devam Et\" düğmesine tıklayarak,\nFuturiza Docs",
     "and": "ve",
     "termOfUse": "Kullanım Koşulları",
     "privacyPolicy": "Gizlilik Politikası",

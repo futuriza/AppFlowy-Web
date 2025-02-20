@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "Futuriza Docs",
   "defaultUsername": "ฉัน",
   "welcomeText": "ยินดีต้อนรับเข้าสู่ @:appName",
   "welcomeTo": "ยินดีต้อนรับเข้าสู่",
@@ -2646,7 +2646,7 @@
     "continueWithApple": "ดำเนินการต่อด้วย Apple ",
     "moreOptions": "ตัวเลือกเพิ่มเติม",
     "collapse": "ยุบ",
-    "signInAgreement": "โดยการคลิก \"ดำเนินการต่อ\" ด้านบน, คุณตกลงตามข้อกำหนดของ AppFlowy",
+    "signInAgreement": "โดยการคลิก \"ดำเนินการต่อ\" ด้านบน, คุณตกลงตามข้อกำหนดของ Futuriza Docs",
     "and": "และ",
     "termOfUse": "เงื่อนไข",
     "privacyPolicy": "นโยบายความเป็นส่วนตัว",

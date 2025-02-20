@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "Futuriza Docs",
   "defaultUsername": "Ich",
   "welcomeText": "Willkommen bei @:appName",
   "welcomeTo": "Willkommen zu",
@@ -2695,7 +2695,7 @@
     "continueWithDiscord": "Weiter mit Discord",
     "continueWithApple": "Weiter mit Apple ",
     "moreOptions": "Weitere Optionen",
-    "signInAgreement": "Wenn du oben auf \"Weiter\" klickst, bestätigst du, dass\ndu folgende Dokumente gelesen, verstanden und akzeptiert hast:\nAppFlowys",
+    "signInAgreement": "Wenn du oben auf \"Weiter\" klickst, bestätigst du, dass\ndu folgende Dokumente gelesen, verstanden und akzeptiert hast:\nFuturiza Docs",
     "and": "und",
     "termOfUse": "Bedingungen",
     "privacyPolicy": "Datenschutzrichtlinie",

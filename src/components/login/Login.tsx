@@ -12,7 +12,7 @@ export function Login ({ redirectTo }: { redirectTo: string }) {
     <div className={'my-10 flex flex-col items-center justify-center gap-[24px] px-4'}>
       <div className={'flex w-full flex-col items-center justify-center gap-[14px]'}>
         <Logo className={'h-10 w-10'} />
-        <div className={'text-[24px] font-semibold max-sm:text-[20px]'}>{t('welcomeTo')} AppFlowy</div>
+        <div className={'text-[24px] font-semibold max-sm:text-[20px]'}>{t('welcomeTo')} {t('appName')}</div>
       </div>
       <MagicLink redirectTo={redirectTo} />
       <div className={'flex w-full items-center justify-center gap-2 text-text-caption'}>

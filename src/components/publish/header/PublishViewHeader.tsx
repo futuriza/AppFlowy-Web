@@ -87,13 +87,13 @@ export function PublishViewHeader ({
             variant={UIVariant.Publish}
           />}
         </div>
-
+{/* 
         <div className={'flex items-center gap-2'}>
           {rendered && <Suspense fallback={null}>
             <RightMenu />
           </Suspense>}
 
-        </div>
+        </div> */}
       </div>
     </div>
   );

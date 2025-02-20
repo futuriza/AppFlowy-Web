@@ -66,7 +66,7 @@ function ViewHelmet ({
   if (!name) return null;
   return (
     <Helmet>
-      <title>{name} | AppFlowy</title>
+      <title>{name} | Futuriza Docs</title>
     </Helmet>
   );
 }

@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "Futuriza Docs",
   "defaultUsername": "Я",
   "welcomeText": "Добро пожаловать в @:appName",
   "welcomeTo": "Добро пожаловать в",
@@ -2177,7 +2177,7 @@
     "continueWithGoogle": "Продолжить с Google",
     "continueWithGithub": "Продолжить с GitHub",
     "continueWithDiscord": "Продолжить с Discord",
-    "signInAgreement": "Нажимая «Продолжить» выше, вы подтверждаете, что\nвы прочитали, поняли и согласились с\nAppFlowy",
+    "signInAgreement": "Нажимая «Продолжить» выше, вы подтверждаете, что\nвы прочитали, поняли и согласились с\nFuturiza Docs",
     "and": "и",
     "termOfUse": "Условия",
     "privacyPolicy": "Политика конфиденциальности",

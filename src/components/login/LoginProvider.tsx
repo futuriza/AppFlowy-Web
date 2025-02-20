@@ -4,13 +4,13 @@ import { Button, Collapse, Divider } from '@mui/material';
 import React, { useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as GoogleSvg } from '@/assets/login/google.svg';
-import { ReactComponent as GithubSvg } from '@/assets/login/github.svg';
-import { ReactComponent as DiscordSvg } from '@/assets/login/discord.svg';
-import { ReactComponent as AppleSvg } from '@/assets/login/apple.svg';
+// import { ReactComponent as GithubSvg } from '@/assets/login/github.svg';
+// import { ReactComponent as DiscordSvg } from '@/assets/login/discord.svg';
+// import { ReactComponent as AppleSvg } from '@/assets/login/apple.svg';
 
 function LoginProvider ({ redirectTo }: { redirectTo: string }) {
   const { t } = useTranslation();
-  const [expand, setExpand] = React.useState(false);
+  const [expand, setExpand] = React.useState(true);
   const options = useMemo(
     () => [
       {
@@ -18,21 +18,21 @@ function LoginProvider ({ redirectTo }: { redirectTo: string }) {
         Icon: GoogleSvg,
         value: 'google',
       },
-      {
-        label: t('web.continueWithApple'),
-        Icon: AppleSvg,
-        value: 'apple',
-      },
-      {
-        label: t('web.continueWithGithub'),
-        value: 'github',
-        Icon: GithubSvg,
-      },
-      {
-        label: t('web.continueWithDiscord'),
-        value: 'discord',
-        Icon: DiscordSvg,
-      },
+      // {
+      //   label: t('web.continueWithApple'),
+      //   Icon: AppleSvg,
+      //   value: 'apple',
+      // },
+      // {
+      //   label: t('web.continueWithGithub'),
+      //   value: 'github',
+      //   Icon: GithubSvg,
+      // },
+      // {
+      //   label: t('web.continueWithDiscord'),
+      //   value: 'discord',
+      //   Icon: DiscordSvg,
+      // },
     ],
     [t],
   );

@@ -228,8 +228,8 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
         palette: {
           mode: isDark ? 'dark' : 'light',
           primary: {
-            main: '#00BCF0',
-            dark: '#00BCF0',
+            main: '#000000',
+            dark: '#000000',
           },
           secondary: {
             main: '#8427e0',
@@ -244,7 +244,7 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
             dark: '#E9B320',
           },
           info: {
-            main: '#00BCF0',
+            main: '#000000',
             dark: '#2E9DBB',
           },
           success: {
