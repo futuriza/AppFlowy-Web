@@ -968,6 +968,7 @@ export interface ViewMetaProps {
   icon?: ViewMetaIcon;
   cover?: ViewMetaCover;
   name?: string;
+  last_edited_time?: number;
   viewId?: string;
   layout?: ViewLayout;
   visibleViewIds?: string[];

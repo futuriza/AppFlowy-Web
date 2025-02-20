@@ -21,7 +21,7 @@ export interface CollabViewProps {
 
 function CollabView ({ doc }: CollabViewProps) {
   const visibleViewIds = usePublishContext()?.viewMeta?.visible_view_ids;
-  const { viewId, layout, icon, cover, layoutClassName, style, name } = useViewMeta();
+  const { viewId, layout, icon, cover, layoutClassName, style, name, last_edited_time } = useViewMeta();
   const View = useMemo(() => {
     switch (layout) {
       case ViewLayout.Document:
@@ -108,6 +108,7 @@ function CollabView ({ doc }: CollabViewProps) {
             cover,
             viewId,
             name,
+            last_edited_time,
             layout: layout || ViewLayout.Document,
             visibleViewIds: visibleViewIds || [],
           }}

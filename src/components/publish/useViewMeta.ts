@@ -66,6 +66,7 @@ export function useViewMeta () {
 
   const viewId = viewMeta?.view_id;
   const name = viewMeta?.name;
+  const last_edited_time = viewMeta?.last_edited_time;
 
   return {
     icon,
@@ -75,5 +76,6 @@ export function useViewMeta () {
     layout,
     viewId,
     name,
+    last_edited_time
   };
 }
