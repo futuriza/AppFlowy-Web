@@ -12,7 +12,7 @@ export async function randomEmoji (skin = 0) {
 }
 
 export async function loadEmojiData () {
-  return import('@emoji-mart/data/sets/15/native.json');
+  return import('@emoji-mart/data/sets/14/native.json');
 }
 
 export function isFlagEmoji (emoji: string) {
