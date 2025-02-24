@@ -8,8 +8,6 @@ import React, { Suspense, useCallback, useRef } from 'react';
 import ViewMetaPreview from '@/components/view-meta/ViewMetaPreview';
 import { useSearchParams } from 'react-router-dom';
 import { appendFirstEmptyParagraph } from '@/application/slate-yjs/utils/yjs';
-import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 export type DocumentProps = ViewComponentProps;
 
@@ -24,8 +22,6 @@ export const Document = (props: DocumentProps) => {
     onRendered,
   } = props;
   const blockId = search.get('blockId') || undefined;
-
-  const { t } = useTranslation();
 
   const onJumpedBlockId = useCallback(() => {
     setSearch(prev => {
@@ -89,9 +85,6 @@ export const Document = (props: DocumentProps) => {
           />
         </div>
       </Suspense>
-      {viewMeta?.last_edited_time && <div className={'px-[10px]'}>
-        {t('grid.field.updatedAtFieldName')}: {dayjs(viewMeta.last_edited_time*1000).format('MMM D, YYYY h:mm A')}
-      </div>}
 
     </div>
   );

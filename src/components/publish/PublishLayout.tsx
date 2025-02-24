@@ -34,13 +34,13 @@ function PublishLayout ({ isTemplateThumb, isTemplate, doc }: {
         overflowXHidden
         overflowYHidden={isTemplateThumb}
         style={{
-          transform: drawerOpened ? `translateX(${drawerWidth}px)` : 'none',
-          width: drawerOpened ? `calc(100% - ${drawerWidth}px)` : '100%',
+          transform: 'none',
+          width: '100%',
           transition: 'width 0.2s ease-in-out, transform 0.2s ease-in-out',
         }}
         className={'appflowy-layout appflowy-scroll-container h-full'}
       >
-        {!isTemplate && <PublishViewHeader
+        {/* {!isTemplate && <PublishViewHeader
           onOpenDrawer={() => {
             toggleOpenDrawer(true);
           }}
@@ -49,7 +49,7 @@ function PublishLayout ({ isTemplateThumb, isTemplate, doc }: {
             toggleOpenDrawer(false);
           }}
           openDrawer={drawerOpened}
-        />}
+        />} */}
 
         <PublishMain
           doc={doc}
@@ -57,14 +57,14 @@ function PublishLayout ({ isTemplateThumb, isTemplate, doc }: {
         />
 
       </AFScroller>
-      {drawerOpened &&
+      {/* {drawerOpened &&
         <SideBar
           onResizeDrawerWidth={setDrawerWidth}
           drawerWidth={drawerWidth}
           drawerOpened={drawerOpened}
           toggleOpenDrawer={toggleOpenDrawer}
         />
-      }
+      } */}
     </div>
   );
 }

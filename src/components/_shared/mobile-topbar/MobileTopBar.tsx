@@ -61,7 +61,7 @@ function MobileTopBar ({ variant }: { variant?: UIVariant }) {
       </MobileDrawer>
 
       {variant === UIVariant.Publish ? <PublishBreadcrumb /> : <AppBreadcrumb />}
-      <div className={'flex items-center gap-4'}>
+      {/* <div className={'flex items-center gap-4'}>
         <button
           onClick={() => openOrDownload()}
         >
@@ -79,7 +79,7 @@ function MobileTopBar ({ variant }: { variant?: UIVariant }) {
 
           </div>
         </MobileDrawer>
-      </div>
+      </div> */}
     </div>
   );
 }
