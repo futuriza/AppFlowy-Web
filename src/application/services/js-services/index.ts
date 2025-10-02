@@ -48,6 +48,7 @@ import {
   YjsEditorKey,
 } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
+import { RepeatedChatMessage } from '@appflowyinc/ai-chat';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 
@@ -72,12 +73,16 @@ export class AFClientService implements AFService {
     APIService.initAPIService(config.cloudConfig);
   }
 
+  getAxiosInstance() {
+    return APIService.getAxiosInstance();
+  }
+
   getClientId() {
     return this.clientId;
   }
 
   async publishView(workspaceId: string, viewId: string, payload?: PublishViewPayload) {
-    if(this.publishViewInfo.has(viewId)) {
+    if (this.publishViewInfo.has(viewId)) {
       this.publishViewInfo.delete(viewId);
     }
 
@@ -85,7 +90,7 @@ export class AFClientService implements AFService {
   }
 
   async unpublishView(workspaceId: string, viewId: string) {
-    if(this.publishViewInfo.has(viewId)) {
+    if (this.publishViewInfo.has(viewId)) {
       this.publishViewInfo.delete(viewId);
     }
 
@@ -128,7 +133,7 @@ export class AFClientService implements AFService {
       isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK,
     );
 
-    if(!viewMeta) {
+    if (!viewMeta) {
       return Promise.reject(new Error('View has not been published yet'));
     }
 
@@ -141,13 +146,13 @@ export class AFClientService implements AFService {
     const isLoaded = this.publishViewLoaded.has(name);
 
     const { doc } = await getPublishView(
-      async() => {
+      async () => {
         try {
           return await fetchPublishView(namespace, publishName);
-        } catch(e) {
+        } catch (e) {
           console.error(e);
-          void (async() => {
-            if(await hasViewMetaCache(name)) {
+          void (async () => {
+            if (await hasViewMetaCache(name)) {
               this.publishViewLoaded.delete(name);
               void deleteView(name);
             }
@@ -163,7 +168,7 @@ export class AFClientService implements AFService {
       isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK,
     );
 
-    if(!isLoaded) {
+    if (!isLoaded) {
       this.publishViewLoaded.add(name);
     }
 
@@ -173,7 +178,7 @@ export class AFClientService implements AFService {
   async getPublishRowDocument(viewId: string) {
     const doc = await openCollabDB(viewId);
 
-    if(hasCollabCache(doc)) {
+    if (hasCollabCache(doc)) {
       return doc;
     }
 
@@ -209,7 +214,7 @@ export class AFClientService implements AFService {
   }
 
   async getPublishInfo(viewId: string) {
-    if(this.publishViewInfo.has(viewId)) {
+    if (this.publishViewInfo.has(viewId)) {
       return this.publishViewInfo.get(viewId) as {
         namespace: string;
         publishName: string;
@@ -225,7 +230,7 @@ export class AFClientService implements AFService {
 
     const namespace = info.namespace;
 
-    if(!namespace) {
+    if (!namespace) {
       return Promise.reject(new Error('View not found'));
     }
 
@@ -279,7 +284,7 @@ export class AFClientService implements AFService {
       emit(EventType.SESSION_VALID);
       afterAuth();
       return;
-    } catch(e) {
+    } catch (e) {
       emit(EventType.SESSION_INVALID);
       return Promise.reject(e);
     }
@@ -288,6 +293,11 @@ export class AFClientService implements AFService {
   @withSignIn()
   async signInMagicLink({ email }: { email: string; redirectTo: string }) {
     return await APIService.signInWithMagicLink(email, AUTH_CALLBACK_URL);
+  }
+
+  @withSignIn()
+  async signInOTP(params: { email: string; code: string; redirectTo: string }) {
+    return APIService.signInOTP(params);
   }
 
   @withSignIn()
@@ -332,7 +342,7 @@ export class AFClientService implements AFService {
       StrategyType.CACHE_AND_NETWORK,
     );
 
-    if(!user) {
+    if (!user) {
       return Promise.reject(new Error('User not found'));
     }
 
@@ -354,7 +364,7 @@ export class AFClientService implements AFService {
   async getUserWorkspaceInfo() {
     const workspaceInfo = await APIService.getUserWorkspaceInfo();
 
-    if(!workspaceInfo) {
+    if (!workspaceInfo) {
       return Promise.reject(new Error('Workspace info not found'));
     }
 
@@ -463,7 +473,7 @@ export class AFClientService implements AFService {
     const token = getTokenParsed();
     const userId = token?.user.id;
 
-    if(!userId) {
+    if (!userId) {
       throw new Error('User not found');
     }
 
@@ -472,15 +482,15 @@ export class AFClientService implements AFService {
     const isLoaded = this.viewLoaded.has(name);
 
     const { doc } = await getPageDoc(
-      async() => {
+      async () => {
         try {
           return await fetchPageCollab(workspaceId, viewId);
           // eslint-disable-next-line
-        } catch(e: any) {
+        } catch (e: any) {
           console.error(e);
 
           errorCallback?.(e);
-          void (async() => {
+          void (async () => {
             this.viewLoaded.delete(name);
             void deleteView(name);
           })();
@@ -492,7 +502,7 @@ export class AFClientService implements AFService {
       isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK,
     );
 
-    if(!isLoaded) {
+    if (!isLoaded) {
       this.viewLoaded.add(name);
     }
 
@@ -545,7 +555,7 @@ export class AFClientService implements AFService {
     const token = getTokenParsed();
     const userId = token?.user.id;
 
-    if(!userId) {
+    if (!userId) {
       throw new Error('User not found');
     }
 
@@ -574,6 +584,10 @@ export class AFClientService implements AFService {
 
   async updateAppPage(workspaceId: string, viewId: string, data: UpdatePagePayload) {
     return APIService.updatePage(workspaceId, viewId, data);
+  }
+
+  async duplicateAppPage(workspaceId: string, viewId: string) {
+    return APIService.duplicatePage(workspaceId, viewId);
   }
 
   async deleteTrash(workspaceId: string, viewId?: string) {
@@ -634,5 +648,21 @@ export class AFClientService implements AFService {
 
   searchWorkspace(workspaceId: string, query: string) {
     return APIService.searchWorkspace(workspaceId, query);
+  }
+
+  async getChatMessages(
+    workspaceId: string,
+    chatId: string,
+    limit?: number | undefined,
+  ): Promise<RepeatedChatMessage> {
+    return APIService.getChatMessages(workspaceId, chatId, limit);
+  }
+
+  async joinWorkspaceByInvitationCode(code: string) {
+    return APIService.joinWorkspaceByInvitationCode(code);
+  }
+
+  async getWorkspaceInfoByInvitationCode(code: string) {
+    return APIService.getWorkspaceInfoByInvitationCode(code);
   }
 }

@@ -1,3 +1,4 @@
+import { YjsEditor } from '@/application/slate-yjs';
 import {
   ViewComponentProps,
   YjsEditorKey, YSharedRoot,
@@ -9,10 +10,12 @@ import ViewMetaPreview from '@/components/view-meta/ViewMetaPreview';
 import { useSearchParams } from 'react-router-dom';
 import { appendFirstEmptyParagraph } from '@/application/slate-yjs/utils/yjs';
 
-export type DocumentProps = ViewComponentProps;
+export type DocumentProps = ViewComponentProps & {
+  onEditorConnected?: (editor: YjsEditor) => void;
+};
 
 export const Document = (props: DocumentProps) => {
-  const [search, setSearch] = useSearchParams();
+  const [search] = useSearchParams();
   const {
     doc,
     readOnly,
@@ -20,15 +23,14 @@ export const Document = (props: DocumentProps) => {
     isTemplateThumb,
     updatePage,
     onRendered,
+    onEditorConnected,
+    uploadFile,
   } = props;
   const blockId = search.get('blockId') || undefined;
 
   const onJumpedBlockId = useCallback(() => {
-    setSearch(prev => {
-      prev.delete('blockId');
-      return prev;
-    });
-  }, [setSearch]);
+    // do nothing
+  }, []);
   const document = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.document);
 
   const handleEnter = useCallback((text: string) => {
@@ -62,6 +64,7 @@ export const Document = (props: DocumentProps) => {
   if (!document || !viewMeta.viewId) return null;
 
   return (
+
     <div
       ref={ref}
       className={'flex h-full w-full flex-col items-center'}
@@ -72,8 +75,9 @@ export const Document = (props: DocumentProps) => {
         updatePage={updatePage}
         onEnter={readOnly ? undefined : handleEnter}
         maxWidth={988}
+        uploadFile={uploadFile}
       />
-      <Suspense fallback={<EditorSkeleton/>}>
+      <Suspense fallback={<EditorSkeleton />}>
         <div className={'flex justify-center w-full'}>
           <Editor
             viewId={viewMeta.viewId}
@@ -81,6 +85,7 @@ export const Document = (props: DocumentProps) => {
             jumpBlockId={blockId}
             onJumpedBlockId={onJumpedBlockId}
             onRendered={handleRendered}
+            onEditorConnected={onEditorConnected}
             {...props}
           />
         </div>

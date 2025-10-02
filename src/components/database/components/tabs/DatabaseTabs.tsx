@@ -87,7 +87,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
           className={`flex items-center  database-tabs w-full gap-1.5 ${expanded || [
             DatabaseViewLayout.Board,
             DatabaseViewLayout.Calendar,
-          ].includes(layout as DatabaseViewLayout) ? 'border-b' : ''} border-line-divider `}
+          ].includes(layout) ? 'border-b' : ''} border-line-divider `}
         >
           <div
             style={{
@@ -122,7 +122,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
                       view={folderView || {
                         layout: databaseLayout === DatabaseViewLayout.Board ? ViewLayout.Board : databaseLayout === DatabaseViewLayout.Calendar ? ViewLayout.Calendar : ViewLayout.Grid,
                       }}
-                      className={'h-4 w-4'}
+                      className={'h-5 w-5'}
                     />}
                     iconPosition="start"
                     color="inherit"

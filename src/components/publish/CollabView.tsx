@@ -93,6 +93,7 @@ function CollabView ({ doc }: CollabViewProps) {
         className={className}
       >
         <View
+          workspaceId={'publish'}
           doc={doc}
           readOnly={true}
           loadViewMeta={loadViewMeta}

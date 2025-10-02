@@ -1,10 +1,9 @@
 import { ViewIconType } from '@/application/types';
 import ChangeIconPopover from '@/components/_shared/view-icon/ChangeIconPopover';
 import { Button } from '@mui/material';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as AddIcon } from '@/assets/add_icon.svg';
-import { ReactComponent as AddCover } from '@/assets/add_cover.svg';
+import { ReactComponent as AddIcon } from '@/assets/icons/emoji.svg';
+import { ReactComponent as AddCover } from '@/assets/icons/image.svg';
 
 function AddIconCover({
   hasIcon,
@@ -15,6 +14,7 @@ function AddIconCover({
   setIconAnchorEl,
   maxWidth,
   visible,
+  onUploadFile,
 }: {
   visible: boolean;
   hasIcon: boolean;
@@ -24,6 +24,7 @@ function AddIconCover({
   iconAnchorEl: HTMLElement | null;
   setIconAnchorEl: (el: HTMLElement | null) => void;
   maxWidth?: number;
+  onUploadFile: (file: File) => Promise<string>;
 }) {
   const { t } = useTranslation();
 
@@ -80,6 +81,8 @@ function AddIconCover({
           setIconAnchorEl(null);
           onUpdateIcon?.({ ty: ViewIconType.Emoji, value: '' });
         }}
+        uploadEnabled
+        onUploadFile={onUploadFile}
       />
     </>
 

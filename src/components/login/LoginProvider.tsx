@@ -1,12 +1,34 @@
 import { notify } from '@/components/_shared/notify';
 import { AFConfigContext } from '@/components/main/app.hooks';
-import { Button, Collapse, Divider } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import React, { useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as GoogleSvg } from '@/assets/login/google.svg';
-// import { ReactComponent as GithubSvg } from '@/assets/login/github.svg';
-// import { ReactComponent as DiscordSvg } from '@/assets/login/discord.svg';
-// import { ReactComponent as AppleSvg } from '@/assets/login/apple.svg';
+import { ReactComponent as GithubSvg } from '@/assets/login/github.svg';
+import { ReactComponent as DiscordSvg } from '@/assets/login/discord.svg';
+import { ReactComponent as AppleSvg } from '@/assets/login/apple.svg';
+import { Button } from '@/components/ui/button';
+
+const moreOptionsVariants = {
+  hidden: {
+    opacity: 0,
+    height: 0,
+  },
+  visible: {
+    opacity: 1,
+    height: 'auto',
+    transition: {
+      height: {
+        duration: 0.3,
+        ease: [0.4, 0, 0.2, 1],
+      },
+      opacity: {
+        duration: 0.2,
+        delay: 0.05,
+      },
+    },
+  },
+};
 
 function LoginProvider ({ redirectTo }: { redirectTo: string }) {
   const { t } = useTranslation();
@@ -63,36 +85,80 @@ function LoginProvider ({ redirectTo }: { redirectTo: string }) {
 
     return <Button
       key={option.value}
-      color={'inherit'}
-      variant={'outlined'}
+      size={'lg'}
+      variant={'outline'}
+      className={'w-full'}
       onClick={() => handleClick(option.value)}
-      className={
-        `flex h-[46px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-line-divider text-sm font-medium  max-sm:w-full text-text-title`
-      }
     >
-      <option.Icon className={'w-[24px] h-[24px]'} />
+      <option.Icon className={'w-5 h-5'} />
       <div className={'w-auto whitespace-pre'}>{option.label}</div>
 
     </Button>;
   }, [handleClick]);
 
   return (
-    <div className={'flex w-full flex-col items-center justify-center gap-[10px]'}>
-      {options.slice(0, 2).map(renderOption)}
-      {!expand && <Button
-        color={'inherit'}
-        size={'small'}
-        onClick={() => setExpand(!expand)}
-        className={'text-sm w-full flex gap-2 items-center hover:bg-transparent hover:text-text-title font-medium text-text-caption'}
-      >
-        <Divider className={'flex-1'} />
-        {t('web.moreOptions')}
-        <Divider className={'flex-1'} />
-      </Button>}
+    <div className={'flex transform transition-all gap-3 w-full flex-col items-center justify-center'}>
+      {options.slice(0, 2).map((option, index) => (
+        <motion.div
+          key={`option-${index}`}
+          className="w-full"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.3,
+            delay: index * 0.1,
+          }}
+        >
+          {renderOption(option)}
+        </motion.div>
+      ))}
 
-      <Collapse className={'w-full'} in={expand}>
-        <div className={'gap-[10px] w-full flex-col flex'}>{options.slice(2).map(renderOption)}</div>
-      </Collapse>
+      <AnimatePresence mode="wait">
+        {!expand && (
+          <motion.div
+            className="w-full"
+            initial="initial"
+            animate="initial"
+            exit="exit"
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <Button
+              variant={'link'}
+              onClick={() => setExpand(true)}
+              className={'w-full'}
+            >
+              {t('web.moreOptions')}
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {expand && (
+          <motion.div
+            className="w-full flex flex-col gap-3 overflow-hidden"
+            variants={moreOptionsVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {options.slice(2).map((option, index) => (
+              <motion.div
+                key={`extra-option-${index}`}
+                className="w-full"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.25,
+                  delay: 0.1 + (index * 0.07),
+                }}
+              >
+                {renderOption(option)}
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

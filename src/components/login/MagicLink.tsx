@@ -1,64 +1,86 @@
-import { notify } from '@/components/_shared/notify';
 import { AFConfigContext } from '@/components/main/app.hooks';
-import { Button, CircularProgress, OutlinedInput } from '@mui/material';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import isEmail from 'validator/lib/isEmail';
 
 function MagicLink ({ redirectTo }: { redirectTo: string }) {
   const { t } = useTranslation();
   const [email, setEmail] = React.useState<string>('');
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string>('');
+  const [, setSearch] = useSearchParams();
   const service = useContext(AFConfigContext)?.service;
   const handleSubmit = async () => {
+    if (loading) return;
     const isValidEmail = isEmail(email);
 
     if (!isValidEmail) {
-      notify.error(t('signIn.invalidEmail'));
+      toast.error(t('signIn.invalidEmail'));
       return;
     }
 
+    setError('');
     setLoading(true);
 
-    try {
-      await service?.signInMagicLink({
-        email,
-        redirectTo,
-      });
-      notify.success(t('signIn.magicLinkSent'));
-    } catch (e) {
-      notify.error(t('web.signInError'));
-    } finally {
-      setLoading(false);
-    }
+    void (async () => {
+      try {
+        await service?.signInMagicLink({
+          email,
+          redirectTo,
+        });
+        // eslint-disable-next-line
+      } catch (e: any) {
+        if (e.code === 429 || e.response?.status === 429) {
+          toast.error(t('tooManyRequests'));
+        } else {
+          toast.error(e.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    setSearch(prev => {
+      prev.set('email', email);
+      prev.set('action', 'checkEmail');
+      return prev;
+    });
+
   };
 
   return (
-    <div className={'flex w-full flex-col items-center justify-center gap-[12px]'}>
-      <OutlinedInput
-        value={email}
+    <div className={'flex w-full flex-col items-center justify-center gap-3'}>
+      <Input
+        size={'md'}
+        variant={error ? 'destructive' : 'default'}
+        helpText={error}
         type={'email'}
-        className={'h-[46px] w-[380px] rounded-[12px] py-[15px] px-[20px] text-base max-sm:w-full'}
-        placeholder={t('signIn.pleaseInputYourEmail')}
-        inputProps={{
-          className: 'px-0 py-0',
+        className={'w-[320px]'}
+        onChange={(e) => {
+          setError('');
+          setEmail(e.target.value);
         }}
-        onChange={(e) => setEmail(e.target.value)}
+        value={email}
+        placeholder={t('signIn.pleaseInputYourEmail')}
+        onKeyDown={e => {
+          if (createHotkey(HOT_KEY_NAME.ENTER)(e.nativeEvent)) {
+            void handleSubmit();
+          }
+        }}
       />
+
       <Button
         onClick={handleSubmit}
-        disabled={loading}
-        variant={'contained'}
-        className={'flex h-[46px] w-[380px] items-center justify-center gap-2 rounded-[12px] text-base max-sm:w-full'}
+        size={'lg'}
+        className={'w-[320px]'}
+        loading={loading}
       >
-        {loading ? (
-          <>
-            <CircularProgress size={'small'} />
-            {t('editor.loading')}...
-          </>
-        ) : (
-          t('web.continue')
-        )}
+        {loading ? t('loading') : t('signIn.signInWithEmail')}
       </Button>
     </div>
   );

@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { ViewIcon, ViewIconType, ViewLayout } from '@/application/types';
-import { ReactComponent as BoardSvg } from '@/assets/board.svg';
-import { ReactComponent as CalendarSvg } from '@/assets/calendar.svg';
-import { ReactComponent as DocumentSvg } from '@/assets/document.svg';
-import { ReactComponent as GridSvg } from '@/assets/grid.svg';
-import { ReactComponent as ChatSvg } from '@/assets/chat_ai.svg';
+import { ReactComponent as BoardSvg } from '@/assets/icons/board.svg';
+import { ReactComponent as CalendarSvg } from '@/assets/icons/calendar.svg';
+import { ReactComponent as DocumentSvg } from '@/assets/icons/page.svg';
+import { ReactComponent as GridSvg } from '@/assets/icons/grid.svg';
+import { ReactComponent as ChatSvg } from '@/assets/icons/ai_chat.svg';
 import { getIcon, isFlagEmoji } from '@/utils/emoji';
 import DOMPurify from 'dompurify';
 import { renderColor } from '@/utils/color';
@@ -30,6 +30,18 @@ function PageIcon({
 
     return null;
   }, [view]);
+
+  const img = useMemo(() => {
+    if(view.icon && view.icon.ty === ViewIconType.URL && view.icon.value) {
+      return <img
+        className={className}
+        src={view.icon.value}
+        alt="icon"
+      />;
+    }
+
+    return null;
+  }, [className, view.icon]);
 
   const isFlag = useMemo(() => {
     return emoji ? isFlagEmoji(emoji) : false;
@@ -77,6 +89,10 @@ function PageIcon({
     </>;
   }
 
+  if(img) {
+    return img;
+  }
+
   if(icon) {
     return icon;
   }
@@ -95,7 +111,6 @@ function PageIcon({
     default:
       return null;
   }
-
 }
 
 export default PageIcon;

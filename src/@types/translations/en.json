@@ -264,7 +264,8 @@
   "questionBubble": {
     "shortcuts": "Shortcuts",
     "whatsNew": "What's new?",
-    "help": "Help & Support",
+    "documentation": "Help & documentation",
+    "help": "Get support",
     "markdown": "Markdown",
     "debug": {
       "name": "Debug Info",
@@ -1687,7 +1688,9 @@
         "aiWriter": "AI Writer",
         "dateOrReminder": "Date or Reminder",
         "photoGallery": "Photo Gallery",
-        "file": "File"
+        "file": "File",
+        "continueWriting": "Continue Writing",
+        "askAIAnything": "Ask AI Anything"
       },
       "subPage": {
         "name": "Document",
@@ -2446,7 +2449,9 @@
     "toggleListShortForm": "Toggle",
     "quoteListShortForm": "Quote",
     "mathEquationShortForm": "Formula",
-    "codeBlockShortForm": "Code"
+    "codeBlockShortForm": "Code",
+    "improveWriting": "Improve writing",
+    "askAI": "Ask AI Anything"
   },
   "favorite": {
     "noFavorite": "No favorite page",
@@ -2694,7 +2699,10 @@
     "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse",
     "error": {
       "pageNameIsEmpty": "The page name is empty, please try another one"
-    }
+    },
+    "visitOurWebsite": "Visit our official website",
+    "addMessagesToPage": "Add messages to page",
+    "addMessagesToPageDisabled": "No messages available"
   },
   "globalComment": {
     "comments": "Comments",
@@ -2975,6 +2983,21 @@
     "priceIn": "Price in ",
     "free": "Free",
     "pro": "Pro",
+    "getAIMax": "Get AI Max",
+    "upgradeAIMax": "Upgrade to AI Max",
+    "unlock": "Unlock",
+    "AIMax": {
+      "label": "AI Max",
+      "removeTitle": "Remove AI Max",
+      "removeDescription": "Are you sure you want to remove AI Max? You will lose access to the features and benefits of AI Max immediately.",
+      "description": "Access the most advanced AI models including GPT-4o, GPT-o3-mini, DeepSeek R1, and Claude 3.5 Sonnet",
+      "pricing": "per member per month\nbilled annually",
+      "points": {
+        "first": "Unlimited AI responses",
+        "second": "Unlimited file uploads",
+        "third": "50 AI images per month"
+      }
+    },
     "freeDescription": "For individuals up to 2 members to organize everything",
     "proDescription": "For small teams to manage projects and team knowledge",
     "proDuration": {
@@ -2992,15 +3015,17 @@
       "three": "5 GB storage",
       "four": "Intelligent search",
       "five": "10 AI responses",
-      "six": "Mobile app",
-      "seven": "Real-time collaboration"
+      "six": "2 AI images",
+      "seven": "Mobile app",
+      "eight": "Real-time collaboration"
     },
     "proPoints": {
       "first": "Unlimited storage",
       "second": "Up to 10 workspace members",
       "three": "Unlimited AI responses",
-      "four": "Unlimited file uploads",
-      "five": "Custom namespace"
+      "four": "10 AI images per month",
+      "five": "Unlimited file uploads",
+      "six": "Custom namespace"
     },
     "cancelPlan": {
       "title": "Sorry to see you go",
@@ -3063,5 +3088,36 @@
   "openInBrowser": "Open in browser",
   "openInApp": "Open in app",
   "comments": "Comments",
-  "duplicateAsTemplate": "Duplicate as template"
+  "duplicateAsTemplate": "Duplicate as template",
+  "embedVideo": "Embed video",
+  "embedAVideo": "Embed a video",
+  "embedLink": "Embed link",
+  "embedVideoLinkPlaceholder": "Paste a video link here.",
+  "videoSupported": "Supported services: YouTube, Vimeo, and more.",
+  "copiedVideoLink": "Video original link copied to clipboard",
+  "checkYourEmail": "Check your email",
+  "checkEmailTip": "A temporary verification link has been sent. Please check your inbox at",
+  "checkCodeTip": "A temporary verification code has been sent. Please check your inbox at",
+  "enterCodeManually": "Enter code manually",
+  "backToLogin": "Back to login",
+  "enterCode": "Enter code",
+  "continueToSignIn": "Continue with login code",
+  "requireCode": "Please enter a valid verification code.",
+  "signing": "Signing in...",
+  "invalidOTPCode": "The code is invalid or has expired. Please try again.",
+  "verifying": "Verifying...",
+  "loading": "Loading...",
+  "tooManyRequests": "Too many requests, please try again later.",
+  "mightNeedToLogin": "You might need to <login/> with a different account.",
+  "alreadyHaveAccount": "You're currently logged in as {{email}}.",
+  "login": "login",
+  "inviteCode": {
+    "title": "You've been invited to join\n{{workspaceName}}",
+    "joinWorkspace": "Join workspace",
+    "haveBeenInvited": "You’ve been invited to Join this workspace with the contact information below.",
+    "invalid": "Invite link is not valid",
+    "backToMyContent": "Back to my content",
+    "joining": "Joining...",
+    "hasJoined": "You’ve joined to\n{{workspaceName}}"
+  }
 }

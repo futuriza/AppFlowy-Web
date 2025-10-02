@@ -46,13 +46,18 @@ import dayjs from 'dayjs';
 import { omit } from 'lodash-es';
 import { nanoid } from 'nanoid';
 import { notify } from '@/components/_shared/notify';
+import { RepeatedChatMessage } from '@appflowyinc/ai-chat';
 
 export * from './gotrue';
 
 let axiosInstance: AxiosInstance | null = null;
 
+export function getAxiosInstance() {
+  return axiosInstance;
+}
+
 export function initAPIService(config: AFCloudConfig) {
-  if(axiosInstance) {
+  if (axiosInstance) {
     return;
   }
 
@@ -66,10 +71,10 @@ export function initAPIService(config: AFCloudConfig) {
   initGrantService(config.gotrueURL);
 
   axiosInstance.interceptors.request.use(
-    async(config) => {
+    async (config) => {
       const token = getTokenParsed();
 
-      if(!token) {
+      if (!token) {
         return config;
       }
 
@@ -78,18 +83,18 @@ export function initAPIService(config: AFCloudConfig) {
       let access_token = token.access_token;
       const refresh_token = token.refresh_token;
 
-      if(isExpired) {
+      if (isExpired) {
         try {
           const newToken = await refreshToken(refresh_token);
 
           access_token = newToken?.access_token || '';
-        } catch(e) {
+        } catch (e) {
           invalidToken();
           return config;
         }
       }
 
-      if(access_token) {
+      if (access_token) {
         Object.assign(config.headers, {
           Authorization: `Bearer ${access_token}`,
         });
@@ -102,13 +107,13 @@ export function initAPIService(config: AFCloudConfig) {
     },
   );
 
-  axiosInstance.interceptors.response.use(async(response) => {
+  axiosInstance.interceptors.response.use(async (response) => {
     const status = response.status;
 
-    if(status === 401) {
+    if (status === 401) {
       const token = getTokenParsed();
 
-      if(!token) {
+      if (!token) {
         invalidToken();
         return response;
       }
@@ -117,7 +122,7 @@ export function initAPIService(config: AFCloudConfig) {
 
       try {
         await refreshToken(refresh_token);
-      } catch(e) {
+      } catch (e) {
         invalidToken();
       }
     }
@@ -129,7 +134,7 @@ export function initAPIService(config: AFCloudConfig) {
 export async function signInWithUrl(url: string) {
   const hash = new URL(url).hash;
 
-  if(!hash) {
+  if (!hash) {
     return Promise.reject('No hash found');
   }
 
@@ -137,7 +142,7 @@ export async function signInWithUrl(url: string) {
   const accessToken = params.get('access_token');
   const refresh_token = params.get('refresh_token');
 
-  if(!accessToken || !refresh_token) {
+  if (!accessToken || !refresh_token) {
     return Promise.reject({
       code: -1,
       message: 'No access token or refresh token found',
@@ -146,7 +151,7 @@ export async function signInWithUrl(url: string) {
 
   try {
     await verifyToken(accessToken);
-  } catch(e) {
+  } catch (e) {
     return Promise.reject({
       code: -1,
       message: 'Verify token failed',
@@ -155,7 +160,7 @@ export async function signInWithUrl(url: string) {
 
   try {
     await refreshToken(refresh_token);
-  } catch(e) {
+  } catch (e) {
     return Promise.reject({
       code: -1,
       message: 'Refresh token failed',
@@ -175,7 +180,7 @@ export async function verifyToken(accessToken: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -203,7 +208,7 @@ export async function getCurrentUser(): Promise<User> {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     const { uid, uuid, email, name, metadata } = data.data;
 
     return {
@@ -252,7 +257,7 @@ export async function openWorkspace(workspaceId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -274,7 +279,7 @@ export async function updateWorkspace(workspaceId: string, payload: UpdateWorksp
 
   const data = response?.data;
 
-  if(data?.code === 0) {
+  if (data?.code === 0) {
     return;
   }
 
@@ -293,7 +298,7 @@ export async function createWorkspace(payload: CreateWorkspacePayload) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.workspace_id;
   }
 
@@ -321,7 +326,7 @@ export async function getUserWorkspaceInfo(): Promise<{
 
   const data = response?.data;
 
-  if(data?.code === 0) {
+  if (data?.code === 0) {
     const { visiting_workspace, workspaces, user_profile } = data.data;
 
     return {
@@ -341,7 +346,7 @@ export async function publishView(workspaceId: string, viewId: string, payload?:
     message: string;
   }>(url, payload);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -355,7 +360,7 @@ export async function unpublishView(workspaceId: string, viewId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -369,7 +374,7 @@ export async function updatePublishNamespace(workspaceId: string, payload: Uploa
     message: string;
   }>(url, payload);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -388,7 +393,7 @@ export async function getPublishViewMeta(namespace: string, publishName: string)
     message: string;
   }>(url);
 
-  if(response?.data.code !== 0) {
+  if (response?.data.code !== 0) {
     return Promise.reject(response?.data);
   }
 
@@ -410,7 +415,7 @@ export async function updateCollab(workspaceId: string, objectId: string, collab
   const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}/web-update`;
   let deviceId = localStorage.getItem('x-device-id');
 
-  if(!deviceId) {
+  if (!deviceId) {
     deviceId = nanoid(8);
     localStorage.setItem('x-device-id', deviceId);
   }
@@ -428,7 +433,7 @@ export async function updateCollab(workspaceId: string, objectId: string, collab
     },
   });
 
-  if(response?.data.code !== 0) {
+  if (response?.data.code !== 0) {
     return Promise.reject(response?.data);
   }
 
@@ -450,7 +455,7 @@ export async function getCollab(workspaceId: string, objectId: string, collabTyp
     },
   });
 
-  if(response?.data.code !== 0) {
+  if (response?.data.code !== 0) {
     return Promise.reject(response?.data);
   }
 
@@ -477,11 +482,11 @@ export async function getPageCollab(workspaceId: string, viewId: string) {
     message: string;
   }>(url);
 
-  if(!response) {
+  if (!response) {
     return Promise.reject('No response');
   }
 
-  if(response.data.code !== 0) {
+  if (response.data.code !== 0) {
     return Promise.reject(response?.data);
   }
 
@@ -499,7 +504,7 @@ export async function getPublishView(publishNamespace: string, publishName: stri
   const meta = await getPublishViewMeta(publishNamespace, publishName);
   const blob = await getPublishViewBlob(publishNamespace, publishName);
 
-  if(meta.view.layout === ViewLayout.Document) {
+  if (meta.view.layout === ViewLayout.Document) {
     return {
       data: blob,
       meta,
@@ -527,7 +532,7 @@ export async function getPublishView(publishNamespace: string, publishName: stri
       subDocuments: res.database_row_document_collabs,
       meta,
     };
-  } catch(e) {
+  } catch (e) {
     return Promise.reject(e);
   }
 }
@@ -539,7 +544,7 @@ export async function updatePublishConfig(workspaceId: string, payload: UpdatePu
     message: string;
   }>(url, [payload]);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -564,7 +569,7 @@ export async function getPublishInfoWithViewId(viewId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -583,7 +588,7 @@ export async function getAppFavorites(workspaceId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.views;
   }
 
@@ -602,7 +607,7 @@ export async function getAppTrash(workspaceId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.views;
   }
 
@@ -621,7 +626,7 @@ export async function getAppRecent(workspaceId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.views;
   }
 
@@ -639,7 +644,7 @@ export async function getAppOutline(workspaceId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.children;
   }
 
@@ -656,7 +661,7 @@ export async function getView(workspaceId: string, viewId: string, depth: number
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -673,7 +678,7 @@ export async function getPublishNamespace(workspaceId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -695,7 +700,7 @@ export async function getPublishHomepage(workspaceId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -711,7 +716,7 @@ export async function updatePublishHomepage(workspaceId: string, viewId: string)
     view_id: viewId,
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -725,7 +730,7 @@ export async function removePublishHomepage(workspaceId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -742,7 +747,7 @@ export async function getPublishOutline(publishNamespace: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.children;
   }
 
@@ -774,7 +779,7 @@ export async function getPublishViewComments(viewId: string): Promise<GlobalComm
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     const { comments } = data.data;
 
     return comments.map((comment) => {
@@ -801,7 +806,7 @@ export async function getPublishViewComments(viewId: string): Promise<GlobalComm
 export async function getReactions(viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
   let url = `/api/workspace/published-info/${viewId}/reaction`;
 
-  if(commentId) {
+  if (commentId) {
     url += `?comment_id=${commentId}`;
   }
 
@@ -823,12 +828,12 @@ export async function getReactions(viewId: string, commentId?: string): Promise<
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     const { reactions } = data.data;
     const reactionsMap: Record<string, Reaction[]> = {};
 
-    for(const reaction of reactions) {
-      if(!reactionsMap[reaction.comment_id]) {
+    for (const reaction of reactions) {
+      if (!reactionsMap[reaction.comment_id]) {
         reactionsMap[reaction.comment_id] = [];
       }
 
@@ -856,7 +861,7 @@ export async function createGlobalCommentOnPublishView(viewId: string, content: 
     reply_comment_id: replyCommentId,
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -871,7 +876,7 @@ export async function deleteGlobalCommentOnPublishView(viewId: string, commentId
     },
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -885,7 +890,7 @@ export async function addReaction(viewId: string, commentId: string, reactionTyp
     reaction_type: reactionType,
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -901,7 +906,7 @@ export async function removeReaction(viewId: string, commentId: string, reaction
     },
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -922,7 +927,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.map(afWorkspace2Workspace);
   }
 
@@ -970,7 +975,7 @@ export async function getWorkspaceFolder(workspaceId: string): Promise<FolderVie
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return iterateFolder(data.data);
   }
 
@@ -994,7 +999,7 @@ export async function duplicatePublishView(workspaceId: string, payload: Duplica
     message: string;
   }>(url, payload);
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return res.data.data.view_id;
   }
 
@@ -1008,7 +1013,7 @@ export async function createTemplate(template: UploadTemplatePayload) {
     message: string;
   }>(url, template);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1022,7 +1027,7 @@ export async function updateTemplate(viewId: string, template: UploadTemplatePay
     message: string;
   }>(url, template);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1053,7 +1058,7 @@ export async function getTemplates({
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.templates;
   }
 
@@ -1070,7 +1075,7 @@ export async function getTemplateById(viewId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -1084,7 +1089,7 @@ export async function deleteTemplate(viewId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1104,7 +1109,7 @@ export async function getTemplateCategories() {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.categories;
   }
 
@@ -1118,7 +1123,7 @@ export async function addTemplateCategory(category: TemplateCategoryFormValues) 
     message: string;
   }>(url, category);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1132,7 +1137,7 @@ export async function updateTemplateCategory(id: string, category: TemplateCateg
     message: string;
   }>(url, category);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1146,7 +1151,7 @@ export async function deleteTemplateCategory(categoryId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1165,7 +1170,7 @@ export async function getTemplateCreators() {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data.creators;
   }
 
@@ -1179,7 +1184,7 @@ export async function createTemplateCreator(creator: TemplateCreatorFormValues) 
     message: string;
   }>(url, creator);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1193,7 +1198,7 @@ export async function updateTemplateCreator(creatorId: string, creator: Template
     message: string;
   }>(url, creator);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1207,7 +1212,7 @@ export async function deleteTemplateCreator(creatorId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1237,7 +1242,7 @@ export async function uploadTemplateAvatar(file: File) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return axiosInstance?.defaults.baseURL + '/api/template-center/avatar/' + data.data.file_id;
   }
 
@@ -1254,7 +1259,7 @@ export async function getInvitation(invitationId: string) {
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -1268,7 +1273,7 @@ export async function acceptInvitation(invitationId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1293,7 +1298,7 @@ export async function getRequestAccessInfo(requestId: string): Promise<GetReques
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     const workspace = data.data.workspace;
 
     return {
@@ -1314,7 +1319,7 @@ export async function approveRequestAccess(requestId: string) {
     is_approved: true,
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1331,7 +1336,7 @@ export async function sendRequestAccess(workspaceId: string, viewId: string) {
     view_id: viewId,
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1355,7 +1360,7 @@ export async function getSubscriptionLink(workspaceId: string, plan: Subscriptio
 
   const data = response?.data;
 
-  if(data?.code === 0 && data.data) {
+  if (data?.code === 0 && data.data) {
     return data.data;
   }
 
@@ -1370,7 +1375,7 @@ export async function getSubscriptions() {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return response?.data.data;
   }
 
@@ -1385,7 +1390,7 @@ export async function getWorkspaceSubscriptions(workspaceId: string) {
 
     return subscriptions?.filter((subscription) => plans?.includes(subscription.plan));
 
-  } catch(e) {
+  } catch (e) {
     return Promise.reject(e);
   }
 }
@@ -1399,7 +1404,7 @@ export async function getActiveSubscription(workspaceId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return response?.data.data;
   }
 
@@ -1422,7 +1427,7 @@ export async function createImportTask(file: File) {
     content_length: file.size,
   });
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return {
       taskId: res?.data.data.task_id,
       presignedUrl: res?.data.data.presigned_url,
@@ -1445,7 +1450,7 @@ export async function uploadImportFile(presignedUrl: string, file: File, onProgr
     },
   });
 
-  if(response.status === 200) {
+  if (response.status === 200) {
     return;
   }
 
@@ -1472,7 +1477,7 @@ export async function addAppPage(workspaceId: string, parentViewId: string, {
     name,
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return response?.data.data.view_id;
   }
 
@@ -1487,7 +1492,7 @@ export async function updatePage(workspaceId: string, viewId: string, data: Upda
     message: string;
   }>(url, data);
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return;
   }
 
@@ -1495,14 +1500,14 @@ export async function updatePage(workspaceId: string, viewId: string, data: Upda
 }
 
 export async function deleteTrash(workspaceId: string, viewId?: string) {
-  if(viewId) {
+  if (viewId) {
     const url = `/api/workspace/${workspaceId}/trash/${viewId}`;
     const response = await axiosInstance?.delete<{
       code: number;
       message: string;
     }>(url);
 
-    if(response?.data.code === 0) {
+    if (response?.data.code === 0) {
       return;
     }
 
@@ -1514,7 +1519,7 @@ export async function deleteTrash(workspaceId: string, viewId?: string) {
       message: string;
     }>(url);
 
-    if(response?.data.code === 0) {
+    if (response?.data.code === 0) {
       return;
     }
 
@@ -1530,7 +1535,7 @@ export async function moveToTrash(workspaceId: string, viewId: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1547,7 +1552,7 @@ export async function movePageTo(workspaceId: string, viewId: string, parentView
     prev_view_id: prevViewId,
   });
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1561,7 +1566,7 @@ export async function restorePage(workspaceId: string, viewId?: string) {
     message: string;
   }>(url);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1578,7 +1583,7 @@ export async function createSpace(workspaceId: string, payload: CreateSpacePaylo
     message: string;
   }>(url, payload);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return response?.data.data.view_id;
   }
 
@@ -1593,7 +1598,7 @@ export async function updateSpace(workspaceId: string, payload: UpdateSpacePaylo
     message: string;
   }>(url, data);
 
-  if(response?.data.code === 0) {
+  if (response?.data.code === 0) {
     return;
   }
 
@@ -1604,10 +1609,10 @@ export async function uploadFile(workspaceId: string, viewId: string, file: File
   const url = `/api/file_storage/${workspaceId}/v1/blob/${viewId}`;
 
   // Check file size, if over 7MB, check subscription plan
-  if(file.size > 7 * 1024 * 1024) {
+  if (file.size > 7 * 1024 * 1024) {
     const plan = await getActiveSubscription(workspaceId);
 
-    if(plan?.length === 0 || plan?.[0] === SubscriptionPlan.Free) {
+    if (plan?.length === 0 || plan?.[0] === SubscriptionPlan.Free) {
       notify.error('Your file is over 7 MB limit of the Free plan. Upgrade for unlimited uploads.');
 
       return Promise.reject({
@@ -1635,7 +1640,7 @@ export async function uploadFile(workspaceId: string, viewId: string, file: File
       },
     });
 
-    if(response?.data.code === 0) {
+    if (response?.data.code === 0) {
       const baseURL = axiosInstance?.defaults.baseURL;
       const url = `${baseURL}/api/file_storage/${workspaceId}/v1/blob/${viewId}/${response?.data.data.file_id}`;
 
@@ -1644,9 +1649,9 @@ export async function uploadFile(workspaceId: string, viewId: string, file: File
 
     return Promise.reject(response?.data);
     // eslint-disable-next-line
-  } catch(e: any) {
+  } catch (e: any) {
 
-    if(e.response.status === 413) {
+    if (e.response.status === 413) {
       return Promise.reject({
         code: 413,
         message: 'File size is too large. Please upgrade your plan for unlimited uploads.',
@@ -1674,7 +1679,7 @@ export async function inviteMembers(workspaceId: string, emails: string[]) {
     message: string;
   }>(url, payload);
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return;
   }
 
@@ -1689,7 +1694,7 @@ export async function getMembers(workspaceId: string) {
     message: string;
   }>(url);
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return res?.data.data;
   }
 
@@ -1703,7 +1708,7 @@ export async function leaveWorkspace(workspaceId: string) {
     message: string;
   }>(url);
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return;
   }
 
@@ -1717,7 +1722,7 @@ export async function deleteWorkspace(workspaceId: string) {
     message: string;
   }>(url);
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return;
   }
 
@@ -1745,7 +1750,7 @@ export async function getQuickNoteList(workspaceId: string, params: {
     },
   });
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return {
       data: res?.data.data.quick_notes,
       has_more: res?.data.data.has_more,
@@ -1765,7 +1770,7 @@ export async function createQuickNote(workspaceId: string, payload: QuickNoteEdi
     data: payload,
   });
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return res?.data.data;
   }
 
@@ -1781,7 +1786,7 @@ export async function updateQuickNote(workspaceId: string, noteId: string, paylo
     data: payload,
   });
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return;
   }
 
@@ -1795,7 +1800,7 @@ export async function deleteQuickNote(workspaceId: string, noteId: string) {
     message: string;
   }>(url);
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return;
   }
 
@@ -1814,7 +1819,7 @@ export async function cancelSubscription(workspaceId: string, plan: Subscription
     reason,
   });
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return;
   }
 
@@ -1835,9 +1840,94 @@ export async function searchWorkspace(workspaceId: string, query: string) {
     },
   });
 
-  if(res?.data.code === 0) {
+  if (res?.data.code === 0) {
     return res?.data.data.map(item => item.object_id);
   }
 
   return Promise.reject(res?.data);
+}
+
+export async function getChatMessages(workspaceId: string, chatId: string, limit?: number | undefined) {
+  const url = `/api/chat/${workspaceId}/${chatId}/message`;
+
+  const response = await axiosInstance?.get<{
+    code: number;
+    data?: RepeatedChatMessage;
+    message: string;
+  }>(url, {
+    params: { limit: limit },
+  });
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
+}
+
+export async function duplicatePage(workspaceId: string, viewId: string) {
+  const url = `/api/workspace/${workspaceId}/page-view/${viewId}/duplicate`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {});
+
+  if (response?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function joinWorkspaceByInvitationCode(
+  code: string,
+) {
+  const url = `/api/workspace/join-by-invite-code`;
+  const response = await axiosInstance?.post<{
+    code: number;
+    message: string;
+    data: {
+      workspace_id: string
+    }
+  }>(url, {
+    code,
+  });
+
+  if (response?.data.code === 0) {
+    return response?.data.data.workspace_id;
+  }
+
+  return Promise.reject(response?.data);
+}
+
+export async function getWorkspaceInfoByInvitationCode(code: string) {
+  const url = `/api/invite-code-info`;
+
+  const response = await axiosInstance?.get<{
+    code: number;
+    message: string;
+    data: {
+      workspace_id: string;
+      workspace_name: string;
+      workspace_icon_url: string;
+      owner_name: string;
+      owner_avatar: string;
+      is_member: boolean;
+      member_count: number;
+    }
+  }>(url, {
+    params: {
+      code,
+    },
+  });
+
+  const data = response?.data;
+
+  if (data?.code === 0 && data.data) {
+    return data.data;
+  }
+
+  return Promise.reject(data);
 }

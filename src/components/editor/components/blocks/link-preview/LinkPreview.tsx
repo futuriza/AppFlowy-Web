@@ -7,7 +7,7 @@ import emptyImageSrc from '@/assets/images/empty.png';
 export const LinkPreview = memo(
   forwardRef<HTMLDivElement, EditorElementProps<LinkPreviewNode>>(({ node, children, ...attributes }, ref) => {
     const [data, setData] = useState<{
-      image: { url: string };
+      image?: { url: string };
       title: string;
       description: string;
     } | null>(null);
@@ -57,8 +57,13 @@ export const LinkPreview = memo(
           {notFound ? (
             <div className={'flex w-full items-center'}>
               <div
-                className={'text-text-title min-w-[80px] w-[120px] flex items-center justify-center mr-2 h-[80px] border rounded'}>
-                <img src={emptyImageSrc} alt={'Empty state'} className={'h-full object-center object-cover'}/>
+                className={'text-text-title min-w-[80px] w-[120px] flex items-center justify-center mr-2 h-[80px] border rounded'}
+              >
+                <img
+                  src={emptyImageSrc}
+                  alt={'Empty state'}
+                  className={'h-full object-center object-cover'}
+                />
               </div>
               <div className={'flex-1 flex flex-col'}>
                 <div className={'text-function-error'}>
@@ -73,21 +78,21 @@ export const LinkPreview = memo(
           ) : (
             <>
               <img
-                src={data?.image.url}
-                alt={data?.title}
-                className={'container h-full min-h-[48px] w-[25%] rounded bg-cover bg-center'}
+                src={data?.image?.url}
+                alt={''}
+                className={'container max-sm:w-[25%] max-w-[120px] max-h-[80px] rounded bg-cover bg-center'}
               />
-              <div className={'flex flex-col justify-center gap-2 overflow-hidden'}>
+              <div className={'flex flex-col flex-1 justify-center gap-2 overflow-hidden'}>
                 <div
                   className={
-                    'max-h-[48px] overflow-hidden whitespace-pre-wrap break-words text-base font-bold text-text-title'
+                    'max-h-[48px] overflow-hidden truncate text-base font-bold text-text-title'
                   }
                 >
                   {data?.title}
                 </div>
                 <div
                   className={
-                    'max-h-[64px] overflow-hidden truncate whitespace-pre-wrap break-words text-sm text-text-title'
+                    'max-h-[64px] overflow-hidden truncate text-sm text-text-title'
                   }
                 >
                   {data?.description}

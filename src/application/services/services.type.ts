@@ -35,10 +35,20 @@ import {
   TemplateCreator, TemplateCreatorFormValues, TemplateSummary,
   UploadTemplatePayload,
 } from '@/application/template.type';
+import { AxiosInstance } from 'axios';
+import { RepeatedChatMessage } from '@appflowyinc/ai-chat';
 
-export type AFService = PublishService & AppService & WorkspaceService & TemplateService & QuickNoteService & {
-  getClientId: () => string;
-};
+export type AFService =
+  PublishService
+  & AppService
+  & WorkspaceService
+  & TemplateService
+  & QuickNoteService
+  & AIChatService
+  & {
+    getClientId: () => string;
+    getAxiosInstance: () => AxiosInstance | null;
+  };
 
 export interface AFServiceConfig {
   cloudConfig: AFCloudConfig;
@@ -75,6 +85,7 @@ export interface AppService {
   getAppTrash: (workspaceId: string) => Promise<View[]>;
   loginAuth: (url: string) => Promise<void>;
   signInMagicLink: (params: { email: string; redirectTo: string }) => Promise<void>;
+  signInOTP: (params: { email: string; code: string; redirectTo: string }) => Promise<void>;
   signInGoogle: (params: { redirectTo: string }) => Promise<void>;
   signInGithub: (params: { redirectTo: string }) => Promise<void>;
   signInDiscord: (params: { redirectTo: string }) => Promise<void>;
@@ -107,6 +118,17 @@ export interface AppService {
   restoreFromTrash: (workspaceId: string, viewId?: string) => Promise<void>;
   movePage: (workspaceId: string, viewId: string, parentId: string, prevViewId?: string) => Promise<void>;
   uploadFile: (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) => Promise<string>;
+  duplicateAppPage: (workspaceId: string, viewId: string) => Promise<void>;
+  joinWorkspaceByInvitationCode: (code: string) => Promise<string>;
+  getWorkspaceInfoByInvitationCode: (code: string) => Promise<{
+    workspace_id: string;
+    workspace_name: string;
+    workspace_icon_url: string;
+    owner_name: string;
+    owner_avatar: string;
+    is_member: boolean;
+    member_count: number;
+  }>;
 }
 
 export interface QuickNoteService {
@@ -163,7 +185,7 @@ export interface PublishService {
   updatePublishHomepage: (workspaceId: string, viewId: string) => Promise<void>;
   removePublishHomepage: (workspaceId: string) => Promise<void>;
 
-  getPublishOutline (namespace: string): Promise<View[]>;
+  getPublishOutline(namespace: string): Promise<View[]>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;
@@ -173,4 +195,12 @@ export interface PublishService {
   removePublishViewReaction: (viewId: string, commentId: string, reactionType: string) => Promise<void>;
   duplicatePublishView: (params: DuplicatePublishView) => Promise<string>;
 
+}
+
+export interface AIChatService {
+  getChatMessages: (
+    workspaceId: string,
+    chatId: string,
+    limit?: number | undefined,
+  ) => Promise<RepeatedChatMessage>;
 }

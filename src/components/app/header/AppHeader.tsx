@@ -4,7 +4,7 @@ import { useOutlinePopover } from '@/components/_shared/outline/outline.hooks';
 import BreadcrumbSkeleton from '@/components/_shared/skeleton/BreadcrumbSkeleton';
 import { AppContext, useAppHandlers, useBreadcrumb } from '@/components/app/app.hooks';
 import { IconButton } from '@mui/material';
-import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
+import { ReactComponent as DoubleArrowRight } from '@/assets/icons/double_arrow_right.svg';
 
 import React, { memo, lazy, Suspense, useContext, useMemo } from 'react';
 import Recent from '@/components/app/recent/Recent';
@@ -52,6 +52,7 @@ export function AppHeader ({
       }}
       className={'appflowy-top-bar transform-gpu sticky top-0 z-10 flex px-5'}
     >
+
       <div className={'flex w-full items-center justify-between gap-4 overflow-hidden'}>
         {displayMenuButton && (
           <OutlinePopover
@@ -73,9 +74,8 @@ export function AppHeader ({
                   onOpenDrawer();
                 },
               }}
-
             >
-              <SideOutlined className={'text-text-caption w-4 h-4'} />
+              <DoubleArrowRight className={'text-text-caption'} />
             </IconButton>
           </OutlinePopover>
 

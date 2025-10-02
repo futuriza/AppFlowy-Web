@@ -1,10 +1,12 @@
 import { CONTAINER_BLOCK_TYPES, SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
-import { BlockData, BlockType, YjsEditorKey } from '@/application/types';
+import { BlockData, BlockType, ColumnNodeData, YjsEditorKey } from '@/application/types';
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
 import { CodeBlock } from '@/components/editor/components/blocks/code';
+import { Column, Columns } from '@/components/editor/components/blocks/columns';
 import { DatabaseBlock } from '@/components/editor/components/blocks/database';
 import { DividerNode } from '@/components/editor/components/blocks/divider';
+import { FileBlock } from '@/components/editor/components/blocks/file';
 import { GalleryBlock } from '@/components/editor/components/blocks/gallery';
 import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
@@ -20,19 +22,18 @@ import SimpleTableCell from '@/components/editor/components/blocks/simple-table/
 import SimpleTableRow from '@/components/editor/components/blocks/simple-table/SimpleTableRow';
 import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
+import { VideoBlock } from '@/components/editor/components/blocks/video';
+import { BlockNotFound } from '@/components/editor/components/element/BlockNotFound';
+import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
+import { renderColor } from '@/utils/color';
+import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
-import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
+import { ReactEditor, RenderElementProps, useSelected, useSlateStatic } from 'slate-react';
 import SubPage from 'src/components/editor/components/blocks/sub-page/SubPage';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
 import { ToggleList } from 'src/components/editor/components/blocks/toggle-list';
-import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
-import { FileBlock } from '@/components/editor/components/blocks/file';
-import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
-import { renderColor } from '@/utils/color';
-import React, { FC, useEffect, useMemo } from 'react';
-import { ReactEditor, RenderElementProps, useSelected, useSlateStatic } from 'slate-react';
 
 export const Element = ({
   element: node,
@@ -50,7 +51,10 @@ export const Element = ({
   const { blockId, type } = node;
   const isSelected = useSelected();
   const selected = useMemo(() => {
-    if (blockId && selectedBlockIds?.includes(blockId)) return true;
+    if (blockId && selectedBlockIds?.includes(blockId)) {
+      return true;
+    }
+
     if ([
       ...CONTAINER_BLOCK_TYPES,
       ...SOFT_BREAK_TYPES,
@@ -58,36 +62,38 @@ export const Element = ({
       BlockType.TableBlock,
       BlockType.TableCell,
       BlockType.SimpleTableBlock,
-    ].includes(type as BlockType)) return false;
+    ].includes(type as BlockType)) {
+      return false;
+    }
+
     return isSelected;
   }, [blockId, selectedBlockIds, type, isSelected]);
 
   const editor = useSlateStatic();
   const highlightTimeoutRef = React.useRef<NodeJS.Timeout>();
 
-  useEffect(() => {
-    if (!jumpBlockId) return;
+  const scrollAndHighlight = useCallback(async (element: HTMLElement) => {
+    element.scrollIntoView({ block: 'start' });
+    element.className += ' highlight-block';
+    highlightTimeoutRef.current = setTimeout(() => {
+      element.className = element.className.replace('highlight-block', '');
+    }, 5000);
+    onJumpedBlockId?.();
+  }, [onJumpedBlockId]);
 
-    if (node.blockId !== jumpBlockId) {
+  useLayoutEffect(() => {
+    if (!jumpBlockId || node.blockId !== jumpBlockId) {
       return;
     }
 
     const element = ReactEditor.toDOMNode(editor, node);
 
-    void (async () => {
-      await smoothScrollIntoViewIfNeeded(element, {
-        behavior: 'smooth',
-        scrollMode: 'if-needed',
-      });
-      element.className += ' highlight-block';
-      highlightTimeoutRef.current = setTimeout(() => {
-        element.className = element.className.replace('highlight-block', '');
-      }, 5000);
+    const delayTimer = setTimeout(() => {
+      void scrollAndHighlight(element);
+    }, 1000);
 
-      onJumpedBlockId?.();
-    })();
-
-  }, [editor, jumpBlockId, node, onJumpedBlockId]);
+    return () => clearTimeout(delayTimer);
+  }, [editor, jumpBlockId, node, onJumpedBlockId, scrollAndHighlight]);
 
   useEffect(() => {
     return () => {
@@ -148,15 +154,41 @@ export const Element = ({
         return SimpleTableRow;
       case BlockType.SimpleTableCellBlock:
         return SimpleTableCell;
+      case BlockType.VideoBlock:
+        return VideoBlock;
+      case BlockType.ColumnsBlock:
+        return Columns;
+      case BlockType.ColumnBlock:
+        return Column;
       default:
-        return UnSupportedBlock;
+        return BlockNotFound;
     }
   }, [type]) as FC<EditorElementProps>;
+
+  const blockStyle = useMemo(() => {
+    const type = node.type as BlockType;
+    const style = {
+      scrollMarginTop: '100px',
+    };
+
+    if (type === BlockType.ColumnBlock) {
+      const ratio = (node.data as ColumnNodeData)?.ratio;
+
+      Object.assign(style, {
+        flexGrow: ratio ? ratio * 1000 : 500,
+        flexBasis: 0,
+        flexShrink: 0,
+        overflowX: 'hidden',
+      });
+    }
+
+    return style;
+  }, [node.data, node.type]);
 
   const className = useMemo(() => {
     const data = (node.data as BlockData) || {};
     const align = data.align;
-    const classList = ['block-element relative flex rounded-[4px]'];
+    const classList = ['block-element flex-col relative flex rounded-[4px]'];
 
     if (selected) {
       classList.push('selected');
@@ -171,17 +203,27 @@ export const Element = ({
 
   const style = useMemo(() => {
     const data = (node.data as BlockData) || {};
-
-    return {
+    const properties = {
       backgroundColor: !selected && data.bgColor ? renderColor(data.bgColor) : undefined,
       color: data.font_color ? renderColor(data.font_color) : undefined,
     };
-  }, [node.data, selected]);
+
+    const type = node.type as BlockType;
+
+    if (type === BlockType.ColumnsBlock) {
+      Object.assign(properties, {
+        display: 'flex',
+        width: '100%',
+      });
+    }
+
+    return properties;
+  }, [node.data, node.type, selected]);
 
   const fallbackRender = useMemo(() => {
     return (props: FallbackProps) => {
       return (
-        <ElementFallbackRender {...props} description={JSON.stringify(node)}/>
+        <ElementFallbackRender {...props} description={JSON.stringify(node)} />
       );
     };
   }, [node]);
@@ -211,6 +253,7 @@ export const Element = ({
         {...attributes}
         data-block-type={type}
         className={className}
+        style={blockStyle}
       >
         <Component
           style={style}

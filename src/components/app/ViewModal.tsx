@@ -1,37 +1,29 @@
-import {
-  ViewComponentProps,
-  ViewLayout,
-  YDoc,
-  ViewMetaProps, UIVariant,
-} from '@/application/types';
+import { ViewComponentProps, ViewLayout, YDoc, ViewMetaProps, UIVariant } from '@/application/types';
 import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import { findAncestors, findView } from '@/components/_shared/outline/utils';
-import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
+import { useAppHandlers, useAppOutline, useCurrentWorkspaceId } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
 import MoreActions from '@/components/app/header/MoreActions';
 import MovePagePopover from '@/components/app/view-actions/MovePagePopover';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
+import { useService } from '@/components/main/app.hooks';
 import { Button, Dialog, Divider, IconButton, Tooltip, Zoom } from '@mui/material';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as ExpandMoreIcon } from '@/assets/full_view.svg';
+import { ReactComponent as ExpandIcon } from '@/assets/icons/expand.svg';
 import ShareButton from 'src/components/app/share/ShareButton';
-import { ReactComponent as CloseIcon } from '@/assets/close.svg';
-import { ReactComponent as ArrowRightIcon } from '@/assets/arrow_right.svg';
+import { ReactComponent as CloseIcon } from '@/assets/icons/close.svg';
+import { ReactComponent as ArrowDownIcon } from '@/assets/icons/alt_arrow_down.svg';
 import { TransitionProps } from '@mui/material/transitions';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement;
   },
-  ref: React.Ref<unknown>,
+  ref: React.Ref<unknown>
 ) {
-  return <Zoom
-
-    ref={ref}
-    {...props}
-  />;
+  return <Zoom ref={ref} {...props} />;
 });
 
 function ViewModal({
@@ -43,6 +35,8 @@ function ViewModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const workspaceId = useCurrentWorkspaceId();
+
   const { t } = useTranslation();
   const {
     toView,
@@ -58,29 +52,33 @@ function ViewModal({
     uploadFile,
   } = useAppHandlers();
   const outline = useAppOutline();
-  const [doc, setDoc] = React.useState<{
-    id: string;
-    doc: YDoc;
-  } | undefined>(undefined);
+  const [doc, setDoc] = React.useState<
+    | {
+        id: string;
+        doc: YDoc;
+      }
+    | undefined
+  >(undefined);
   const [notFound, setNotFound] = React.useState(false);
-  const loadPageDoc = useCallback(async (id: string) => {
+  const service = useService();
+  const requestInstance = service?.getAxiosInstance();
+  const loadPageDoc = useCallback(async(id: string) => {
+      setNotFound(false);
+      setDoc(undefined);
+      try {
+        const doc = await loadView(id);
 
-    setNotFound(false);
-    setDoc(undefined);
-    try {
-      const doc = await loadView(id);
-      
-      setDoc({ doc, id });
-    } catch (e) {
-      setNotFound(true);
-      console.error(e);
-    }
-
-  }, [loadView]);
+        setDoc({ doc, id });
+      } catch (e) {
+        setNotFound(true);
+        console.error(e);
+      }
+    },
+    [loadView]
+  );
 
   useEffect(() => {
     if (open && viewId) {
-
       void loadPageDoc(viewId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,15 +103,19 @@ function ViewModal({
       visibleViewIds: [],
       viewId: view.view_id,
       extra: view.extra,
+      workspaceId,
     } : null;
-  }, [view]);
+  }, [view, workspaceId]);
+
   const handleUploadFile = useCallback((file: File) => {
-    if (view && uploadFile) {
+    if(view && uploadFile) {
       return uploadFile(view.view_id, file);
     }
 
-    return Promise.reject();
-  }, [uploadFile, view]);
+      return Promise.reject();
+    },
+    [uploadFile, view]
+  );
   const [movePopoverAnchorEl, setMovePopoverAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const onMoved = useCallback(() => {
@@ -122,10 +124,10 @@ function ViewModal({
 
   const modalTitle = useMemo(() => {
     if (!viewId) return null;
-    const space = findAncestors(outline || [], viewId)?.find(item => item.extra?.is_space);
+    const space = findAncestors(outline || [], viewId)?.find((item) => item.extra?.is_space);
 
     return (
-      <div className={'w-full bg-bg-body z-[10] px-4 py-4 sticky top-0 flex items-center justify-between gap-2'}>
+      <div className={'sticky top-0 z-[10] flex w-full items-center justify-between gap-2 bg-bg-body px-4 py-4'}>
         <div className={'flex items-center gap-4'}>
           <Tooltip title={t('tooltip.openAsPage')}>
             <IconButton
@@ -135,50 +137,41 @@ function ViewModal({
                 handleClose();
               }}
             >
-              <ExpandMoreIcon className={'text-text-title opacity-80 h-5 w-5'}/>
+              <ExpandIcon className={'h-5 w-5 text-text-title opacity-80'} />
             </IconButton>
           </Tooltip>
-          <Divider
-            orientation={'vertical'}
-            className={'h-4'}
-          />
+          <Divider orientation={'vertical'} className={'h-4'} />
           {space && (
             <Button
               onClick={(e) => {
                 setMovePopoverAnchorEl(e.currentTarget);
               }}
               size={'small'}
-              startIcon={<SpaceIcon
-                bgColor={space.extra?.space_icon_color}
-                value={space.extra?.space_icon || ''}
-                char={space.extra?.space_icon ? undefined : space.name.slice(0, 1)}
-              />}
+              startIcon={
+                <SpaceIcon
+                  bgColor={space.extra?.space_icon_color}
+                  value={space.extra?.space_icon || ''}
+                  char={space.extra?.space_icon ? undefined : space.name.slice(0, 1)}
+                />
+              }
               color={'inherit'}
               className={'justify-start px-1.5'}
-              endIcon={<ArrowRightIcon className={'transform rotate-90'}/>}
-            >{space.name}</Button>
+              endIcon={<ArrowDownIcon />}
+            >
+              {space.name}
+            </Button>
           )}
         </div>
 
         <div className={'flex items-center gap-4'}>
-          <ShareButton viewId={viewId}/>
-          <MoreActions
-            onDeleted={handleClose}
-            viewId={viewId}
-          />
+          <ShareButton viewId={viewId} />
+          <MoreActions onDeleted={handleClose} viewId={viewId} />
 
-          <Divider
-            orientation={'vertical'}
-            className={'h-4'}
-          />
-          <IconButton
-            size={'small'}
-            onClick={handleClose}
-          >
-            <CloseIcon/>
+          <Divider orientation={'vertical'} className={'h-4'} />
+          <IconButton size={'small'} onClick={handleClose}>
+            <CloseIcon />
           </IconButton>
         </div>
-
       </div>
     );
   }, [handleClose, outline, t, toView, viewId]);
@@ -199,8 +192,10 @@ function ViewModal({
   }, [layout]) as React.FC<ViewComponentProps>;
 
   const viewDom = useMemo(() => {
-    if (!doc || !viewMeta || doc.id !== viewMeta.viewId) return null;
+    if(!doc || !viewMeta || doc.id !== viewMeta.viewId) return null;
     return <View
+      requestInstance={requestInstance}
+      workspaceId={workspaceId || ''}
       doc={doc.doc}
       readOnly={false}
       viewMeta={viewMeta}
@@ -217,7 +212,7 @@ function ViewModal({
       uploadFile={handleUploadFile}
       variant={UIVariant.App}
     />;
-  }, [openPageModal, handleUploadFile, setWordCount, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
+  }, [requestInstance, openPageModal, workspaceId, handleUploadFile, setWordCount, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
 
   return (
     <Dialog
@@ -230,25 +225,20 @@ function ViewModal({
       disableRestoreFocus={true}
       TransitionComponent={Transition}
       PaperProps={{
-        className: `max-w-[70vw] w-[1188px] flex flex-col h-[80vh] appflowy-scroller`,
+        className: `max-w-[70vw] appflowy-scroll-container transform relative w-[1188px] flex flex-col h-[80vh] appflowy-scroller`,
       }}
     >
       {modalTitle}
-      {notFound ? (
-        <RecordNotFound/>
-      ) : (
-        <div className={'w-full h-full'}>
-          {viewDom}
-        </div>
+      {notFound ? <RecordNotFound /> : <div className={'h-full w-full'}>{viewDom}</div>}
+      {viewId && (
+        <MovePagePopover
+          viewId={viewId}
+          open={Boolean(movePopoverAnchorEl)}
+          anchorEl={movePopoverAnchorEl}
+          onClose={() => setMovePopoverAnchorEl(null)}
+          onMoved={onMoved}
+        />
       )}
-      {viewId && <MovePagePopover
-        viewId={viewId}
-        open={Boolean(movePopoverAnchorEl)}
-        anchorEl={movePopoverAnchorEl}
-        onClose={() => setMovePopoverAnchorEl(null)}
-        onMoved={onMoved}
-      />}
-
     </Dialog>
   );
 }

@@ -15,7 +15,13 @@ import {
   BlockId,
   BlockData,
   DatabaseNodeData,
-  LinkPreviewBlockData, FileBlockData, GalleryBlockData, SubpageNodeData, SimpleTableData,
+  LinkPreviewBlockData,
+  FileBlockData,
+  GalleryBlockData,
+  SubpageNodeData,
+  SimpleTableData,
+  VideoBlockData,
+  ColumnNodeData,
 } from '@/application/types';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
@@ -114,6 +120,12 @@ export interface ImageBlockNode extends BlockNode {
   data: ImageBlockData;
 }
 
+export interface VideoBlockNode extends BlockNode {
+  type: BlockType.VideoBlock;
+  blockId: string;
+  data: VideoBlockData;
+}
+
 export interface GalleryBlockNode extends BlockNode {
   type: BlockType.GalleryBlock;
   blockId: string;
@@ -164,6 +176,17 @@ export interface SubpageNode extends BlockNode {
   type: BlockType.SubpageBlock;
   blockId: string;
   data: SubpageNodeData;
+}
+
+export interface ColumnsNode extends BlockNode {
+  type: BlockType.ColumnsBlock;
+  blockId: string;
+}
+
+export interface ColumnNode extends BlockNode {
+  type: BlockType.ColumnBlock;
+  blockId: string;
+  data: ColumnNodeData;
 }
 
 export interface EditorElementProps<T = Element> extends HTMLAttributes<HTMLDivElement> {

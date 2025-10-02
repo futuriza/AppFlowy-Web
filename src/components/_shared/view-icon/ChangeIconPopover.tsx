@@ -1,6 +1,7 @@
 import { ViewIconType } from '@/application/types';
 import { EmojiPicker } from '@/components/_shared/emoji-picker';
 import IconPicker from '@/components/_shared/icon-picker/IconPicker';
+import { UploadImage } from '@/components/_shared/image-upload';
 import { Popover } from '@/components/_shared/popover';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
 import { Button } from '@mui/material';
@@ -8,7 +9,7 @@ import { PopoverProps } from '@mui/material/Popover';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function ChangeIconPopover ({
+function ChangeIconPopover({
   open,
   anchorEl,
   onClose,
@@ -20,16 +21,20 @@ function ChangeIconPopover ({
   removeIcon,
   anchorPosition,
   hideRemove,
+  uploadEnabled,
+  onUploadFile,
 }: {
   open: boolean,
   anchorEl?: HTMLElement | null,
   anchorPosition?: PopoverProps['anchorPosition'],
   onClose: () => void,
-  defaultType: 'emoji' | 'icon',
+  defaultType: 'emoji' | 'icon' | 'upload',
   emojiEnabled?: boolean,
+  uploadEnabled?: boolean,
   iconEnabled?: boolean,
   popoverProps?: Partial<PopoverProps>,
   onSelectIcon?: (icon: { ty: ViewIconType, value: string, color?: string, content?: string }) => void,
+  onUploadFile?: (file: File) => Promise<string>,
   removeIcon?: () => void,
   hideRemove?: boolean,
 }) {
@@ -80,6 +85,16 @@ function ChangeIconPopover ({
               />
             )
           }
+          {
+            uploadEnabled && (
+              <ViewTab
+                className={'flex items-center flex-row justify-center gap-1.5'}
+                value={'upload'}
+                label={'Upload'}
+                data-testid="upload-tab"
+              />
+            )
+          }
 
         </ViewTabs>
         {!hideRemove && <Button
@@ -101,6 +116,7 @@ function ChangeIconPopover ({
         value={value}
       >
         <IconPicker
+          size={[400, 360]}
           onEscape={handleClose}
           onSelect={(icon) => {
             onSelectIcon?.({
@@ -116,6 +132,7 @@ function ChangeIconPopover ({
         value={value}
       >
         <EmojiPicker
+          size={[400, 360]}
           onEmojiSelect={(emoji: string) => {
             onSelectIcon?.({
               ty: ViewIconType.Emoji,
@@ -125,6 +142,30 @@ function ChangeIconPopover ({
           onEscape={handleClose}
           hideRemove
         />
+      </TabPanel>}
+      {uploadEnabled && <TabPanel
+        index={'upload'}
+        value={value}
+      >
+        <div
+          style={{
+            width: 400,
+            height: 360,
+          }}
+          className={'relative pt-4 pb-2'}
+        >
+          <UploadImage
+            onDone={(url) => {
+              onSelectIcon?.({
+                ty: ViewIconType.URL,
+                value: url,
+              });
+              handleClose();
+            }}
+            uploadAction={onUploadFile}
+          />
+        </div>
+
       </TabPanel>}
     </Popover>
   );
