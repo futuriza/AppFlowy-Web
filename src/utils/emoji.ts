@@ -8,7 +8,7 @@ const http = axios.create();
 const pendingRequests: Map<string, Promise<any>> = new Map();
 
 async function httpGet(url: string) {
-  if(pendingRequests.has(url)) {
+  if (pendingRequests.has(url)) {
     return pendingRequests.get(url);
   }
 
@@ -58,13 +58,17 @@ export enum ICON_CATEGORY {
   work_education = 'work_education',
 }
 
-let icons: Record<ICON_CATEGORY,
-  {
-    id: string;
-    name: string;
-    content: string;
-    keywords: string[];
-  }[]> | undefined;
+let icons:
+  | Record<
+      ICON_CATEGORY,
+      {
+        id: string;
+        name: string;
+        content: string;
+        keywords: string[];
+      }[]
+    >
+  | undefined;
 
 export async function loadIcons(): Promise<
   Record<
@@ -77,7 +81,7 @@ export async function loadIcons(): Promise<
     }[]
   >
 > {
-  if(icons) {
+  if (icons) {
     return icons;
   }
 
@@ -99,7 +103,7 @@ export async function getIconBase64(id: string, color: string) {
     const base64String = btoa(svgText);
 
     return `data:image/svg+xml;base64,${base64String}`;
-  } catch(error) {
+  } catch (error) {
     console.error('Error setting favicon:', error);
     return '';
   }
@@ -117,9 +121,9 @@ export async function randomIcon() {
 export async function getIcon(id: string) {
   const icons = await loadIcons();
 
-  for(const category of Object.keys(icons)) {
-    for(const icon of icons[category as ICON_CATEGORY]) {
-      if(icon.id === id) {
+  for (const category of Object.keys(icons)) {
+    for (const icon of icons[category as ICON_CATEGORY]) {
+      if (icon.id === id) {
         return icon;
       }
     }
